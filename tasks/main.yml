@@ -1,0 +1,11 @@
+---
+# tasks file for gissues
+
+- name: Manage Gitlab Issues
+  ansible.builtin.include_tasks:
+    file: update_issues.yml
+  loop: "{{ gissues_project_issues }}"
+  loop_control:
+    loop_var: issue
+    label: "{{ issue.title }}"
+

@@ -1,0 +1,75 @@
+---
+# tasks file for gissues
+
+- name: "Update Gitlab Issues for Project: {{ gissues_project }}"
+  community.general.gitlab_issue:
+    api_url: "{{ gissues_api_url }}"
+    api_token: "{{ gissues_api_token }}"
+    project: "{{ gissues_project }}"
+    title: "{{ issue.title }}"
+    description: "{{ lookup('template', gissues_description_template) }}"
+    state: "{{ issue.state }}"
+    labels: "{{ issue.labels }}"
+    assignee_ids: "{{ issue.assignee_ids }}"
+    milestone_search: "{{ issue.milestone_search }}"
+    validate_certs: "{{ gissues_validate_certs }}"
+    state_filter: "{{ gissues_state_filter }}"
+  register: issue_result
+
+- name: Set Issue Facts
+  ansible.builtin.set_fact:
+    gissue_current_id: "{{ issue_result.issue.id }}"
+    gissue_current_iid: "{{ issue_result.issue.iid }}"
+    gissue_current_project_id: "{{ issue_result.issue.project_id }}"
+    gissue_current_state: "{{ issue_result.issue.state }}"
+    gissue_current_url: "{{ gissues_api_url }}/api/v4/projects/{{ issue_result.issue.project_id }}/issues/{{ issue_result.issue.iid }}"
+  when: issue.state == present
+
+- name: Assign Issue Epic/Parent
+  ansible.builtin.uri:
+    url: "{{ gissue_current_url }}"
+    method: PUT
+    headers:
+      PRIVATE-TOKEN: "{{ gissues_api_token }}"
+    body_format: json
+    body:
+      epic_id: "{{ issue.epic_id | int }}"
+    status_code: 200
+    validate_certs: "{{ gissues_validate_certs }}"
+  when: 
+    - issue.state == present
+
+- name: Close Gitlab Issue
+  ansible.builtin.uri:
+    url: "{{ gissue_current_url }}"
+    method: PUT
+    headers:
+      PRIVATE-TOKEN: "{{ gissue_api_token }}"
+    body_format: json
+    body:
+      state_event: close
+    status_code: 200
+    validate_certs: "{{ gissues_validate_certs }}"
+  when: 
+    - gissues_state_filter == 'opened'
+    - gissue_current_state == 'opened'
+    - issue.state == present
+    - issue.closed
+
+- name: Reopen Gitlab Issue
+  ansible.builtin.uri:
+    url: "{{ gissue_current_url }}"
+    method: PUT
+    headers:
+      PRIVATE-TOKEN: "{{ gissue_api_token }}"
+    body_format: json
+    body:
+      state_event: reopen
+    status_code: 200
+    validate_certs: "{{ gissues_validate_certs }}"
+  when: 
+    - gissues_state_filter == 'closed'
+    - gissue_current_state == 'closed'
+    - issue.state == present
+    - not issue.closed
+    
