@@ -4,14 +4,14 @@
 - name: Render Gitlab Issue Template
   ansible.builtin.set_fact:
     gissue_description: "{{ lookup('template', gissues_description_template) }}"
-  when: 
+  when:
     - issue.use_template is defined
     - issue.use_template
 
 - name: Set Variable Defined Description Text
   ansible.builtin.set_fact:
     gissue_description: "{{ issue.description | default('') }}"
-  when: 
+  when:
     - issue.use_template is defined
     - not issue.use_template
 
@@ -23,7 +23,7 @@
 
 # Only search closed issues when reopening issue
 - name: Set State Filter to Closed
-  ansible.builtin.set_fact: 
+  ansible.builtin.set_fact:
     gissue_state_filter: closed
   when: not issue.closed
 
@@ -76,7 +76,7 @@
       state_event: close
     status_code: 200
     validate_certs: "{{ gissues_validate_certs }}"
-  when: 
+  when:
     - (issue.state | default('present')) == 'present'
     - issue.state_filter == 'opened'
     - gissue_current_state == 'opened'
@@ -93,9 +93,8 @@
       state_event: reopen
     status_code: 200
     validate_certs: "{{ gissues_validate_certs }}"
-  when: 
+  when:
     - (issue.state | default('present')) == 'present'
     - issue.state_filter == 'closed'
     - gissue_current_state == 'closed'
     - not issue.closed | default(false)
-    
