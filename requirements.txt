@@ -1,0 +1,5 @@
+python-gitlab
+ansible
+ansible-lint
+requests
+urllib3

@@ -1,22 +1,22 @@
 ## Task Ownership
 
-Task Owner: {{ issue.task_owner }}
+Task Owner: {{ issue.task_owner | default('') }}
 
-Report to: {{ issue.report_to }}
+Report to: {{ issue.report_to | default('') }}
 
 ## What is the Task?
 > - What are you doing? 
 > - Why are you doing it? 
 > - How do you know when you are done? 
 
-{{ issue.task_content }}
+{{ issue.task_brief | default('') }}
 
 ## Delivery Specifics
 > - What is expected to be delivered: <spreadsheet, guide, etc>
 > - Where is it being delivered: <Where does it get delivered to?>
 > - Due date is a component of this issue - _Please coordinate with the Report To person if the delivery date needs adjusted_.
 
-{{ issue.delivery_specifics_content }}
+{{ issue.delivery_specifics | default('') }}
 
 ## Reporting
 > - When to report
@@ -26,9 +26,9 @@ Report to: {{ issue.report_to }}
 >   - Update this issue and post in the ~Infrastructure channel on Mattermost.
 >   - Feedback and notes will captured in the issue so it is available to provide guidance or clarity.
 
-{{ issue.reporting_content }}
+{{ issue.reporting_details | default('') }}
 
 ## Details and background info
 
-{{ issue.background_details_content }}
+{{ issue.background_details | default('') }}
 

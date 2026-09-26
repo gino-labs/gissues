@@ -7,19 +7,21 @@ gissues_project: ''
 gissues_project_issues:
   - title: ''
     state: present
+    state_filter: opened
     description: ''
     labels: []
     assignee_ids: []
+    milestone_search: ''
     milestone_group_id: ''
     epic_id: 0
+    closed: false
+    use_template: true
     task_owner: ''
     report_to: ''
-    task_content: ''
-    delivery_specifics_content: ''
-    reporting_content: ''
-    background_details_content: ''
-    closed: false
+    task_brief: ''
+    delivery_specifics: ''
+    reporting_details: ''
+    background_details: ''
 gissues_description_template: 'gissues_description.md.j2'
 gissues_validate_certs: true
-gissues_state_filter: opened
 
