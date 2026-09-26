@@ -12,13 +12,21 @@
 
 
 # Issue should exist or it should not
-- name: Set Facts About Gitlab Issue
+- name: Set Fact About Issue State
   ansible.builtin.set_fact:
     gissue_exists: "{{ issue.state | default('present') != 'absent' }}"
 
+# Template takes precedence over description
+- name: Set Fact About Issue Description
+  ansible.builtin.set_fact:
+    gissue_template: "{{ lookup('template', 'issue.template') }}"
+  when:
+    - issue.template is defined
+    - issue.template != ''
+
 - name: Manage Closed Gitlab Issues
   community.general.gitlab_issue:
-    api_job_token: "{{ gissues_api_job_token | default(omit)}}"
+    api_job_token: "{{ gissues_api_job_token | default(omit) }}"
     api_oauth_token: "{{ gissues_api_oauth_token | default(omit) }}"
     api_username: "{{ gissues_api_username | default(omit) }}"
     api_password: "{{ gissues_api_password | default(omit) }}"
@@ -26,7 +34,7 @@
     api_token: "{{ gissues_api_token }}"
     project: "{{ gissues_project }}"
     title: "{{ issue.title }}"
-    description: "{{ issue.description | default(omit) }}"
+    description: "{{ gissue_template | default(issue.description) | default(omit) }}"
     state: "{{ issue.state | default(omit) }}"
     labels: "{{ issue.labels | default(omit) }}"
     assignee_ids: "{{ issue.assignee_ids | default(omit) }}"
@@ -106,4 +114,3 @@
     - opened
     - closed
   when: not gissue_exists
-
