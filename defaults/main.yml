@@ -15,7 +15,7 @@ gissues_project_issues:
     milestone_group_id: ''
     epic_id: 0
     closed: false
-    use_template: true
+    use_template: false
     task_owner: ''
     report_to: ''
     task_brief: ''
@@ -24,4 +24,3 @@ gissues_project_issues:
     background_details: ''
 gissues_description_template: 'gissues_description.md.j2'
 gissues_validate_certs: true
-

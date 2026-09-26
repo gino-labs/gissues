@@ -1,30 +1,53 @@
 ---
 # tasks file for gissues
+# State 1: Present and Open and not Closed
+# State 2: Present and Closed and not Open
+# State 3: Absent and (Open or Closed)
+
+# Issue should exist or it should not
+- name: Set Early Fact about Gitlab Issue State
+  ansible.builtin.set_fact:
+    gissue_exists: "{{ issue.state | default('present') == 'present' }}"
+
+# State 3: Delete issue whether opened or closed
+- name: Delete Issue
+  community.general.gitlab_issue:
+    api_url: "{{ gissues_api_url }}"
+    api_token: "{{ gissues_api_token }}"
+    project: "{{ gissues_project }}"
+    title: "{{ issue.title }}"
+    state: "{{ issue.state }}"
+    state_filter: "{{ item }}"
+  loop:
+    - opened
+    - closed
+  when: not gissue_exists
+
+### Everything below runs when issue should exist ###
 
 - name: Render Gitlab Issue Template
   ansible.builtin.set_fact:
     gissue_description: "{{ lookup('template', gissues_description_template) }}"
   when:
-    - issue.use_template is defined
-    - issue.use_template
+    - gissue_exists
+    - issue.use_template | default(false)
 
 - name: Set Variable Defined Description Text
   ansible.builtin.set_fact:
     gissue_description: "{{ issue.description | default('') }}"
   when:
-    - issue.use_template is defined
-    - not issue.use_template
+    - not issue.use_template | default(false)
+    - issue.state | default('present') == 'absent'
 
-# Only search opened issues when closing issue
+# State 1: Search Open
 - name: Set State Filter to Opened
   ansible.builtin.set_fact:
     gissue_state_filter: opened
-  when: issue.closed
+  when: not issue.closed
 
-# Only search closed issues when reopening issue
 - name: Set State Filter to Closed
   ansible.builtin.set_fact:
-    gissue_state_filter: closed
+    gissue_state_filter: close
   when: not issue.closed
 
 - name: "Update Gitlab Issues for Project: {{ gissues_project }}"
