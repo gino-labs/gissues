@@ -10,21 +10,20 @@
 # Absent search opened, found = delete opened
 # Absent search opened, not found = no action
 
-
 # Issue should exist or it should not
 - name: Set Fact About Issue State
   ansible.builtin.set_fact:
     gissue_exists: "{{ issue.state | default('present') != 'absent' }}"
 
 # Template takes precedence over description
-- name: Set Fact About Issue Description
+- name: Set Fact About Issue Template
   ansible.builtin.set_fact:
     gissue_template: "{{ lookup('template', 'issue.template') }}"
   when:
     - issue.template is defined
     - issue.template != ''
 
-- name: Manage Closed Gitlab Issues
+- name: Manage Gitlab Issues
   community.general.gitlab_issue:
     api_job_token: "{{ gissues_api_job_token | default(omit) }}"
     api_oauth_token: "{{ gissues_api_oauth_token | default(omit) }}"
@@ -41,7 +40,7 @@
     milestone_search: "{{ issue.milestone_search | default(omit) }}"
     milestone_group_id: "{{ issue.milestone_group_id | default(omit) }}"
     validate_certs: "{{ gissues_validate_certs | default(omit) }}"
-    state_filter: "{{ issue.state_filter }}"
+    state_filter: "{{ issue.state_filter | default(omit) }}"
     issue_type: "{{ issue.issue_type | default(omit) }}"
     ca_path: "{{ issue.ca_path | default(omit) }}"
   when: gissue_exists
@@ -64,41 +63,45 @@
       PRIVATE-TOKEN: "{{ gissues_api_token }}"
     body_format: json
     body:
-      epic_id: "{{ issue.epic_id | default(0) | int }}"
-    status_code: 200
-    validate_certs: "{{ gissues_validate_certs }}"
-  when: gissue_exists
-
-- name: Close Gitlab Issue
-  ansible.builtin.uri:
-    url: "{{ gissue_current_url }}"
-    method: PUT
-    headers:
-      PRIVATE-TOKEN: "{{ gissues_api_token }}"
-    body_format: json
-    body:
-      state_event: close
+      epic_id: "{{ issue.epic_id | int }}"
     status_code: 200
     validate_certs: "{{ gissues_validate_certs }}"
   when:
     - gissue_exists
-    - issue.closed | default(false)
+    - issue.epic_id is defined
 
-- name: Reopen Gitlab Issue
-  ansible.builtin.uri:
-    url: "{{ gissue_current_url }}"
-    method: PUT
-    headers:
-      PRIVATE-TOKEN: "{{ gissues_api_token }}"
-    body_format: json
-    body:
-      state_event: reopen
-    status_code: 200
-    validate_certs: "{{ gissues_validate_certs }}"
-  when:
-    - gissue_exists
-    - issue.state_filter == 'closed'
-    - gissue_current_state == 'closed'
+### TODO ###
+# - name: Close Gitlab Issue
+#   ansible.builtin.uri:
+#     url: "{{ gissue_current_url }}"
+#     method: PUT
+#     headers:
+#       PRIVATE-TOKEN: "{{ gissues_api_token }}"
+#     body_format: json
+#     body:
+#       state_event: close
+#     status_code: 200
+#     validate_certs: "{{ gissues_validate_certs }}"
+#   when:
+#     - gissue_exists
+#     - issue.closed | default(false)
+
+### TODO ###
+# - name: Reopen Gitlab Issue
+#   ansible.builtin.uri:
+#     url: "{{ gissue_current_url }}"
+#     method: PUT
+#     headers:
+#       PRIVATE-TOKEN: "{{ gissues_api_token }}"
+#     body_format: json
+#     body:
+#       state_event: reopen
+#     status_code: 200
+#     validate_certs: "{{ gissues_validate_certs }}"
+#   when:
+#     - gissue_exists
+#     - gissue_current_state == 'closed'
+#     - issue.state_filter == 'closed'
 
 # State 3: Delete issue whether opened or closed
 - name: Delete Issue
@@ -108,9 +111,9 @@
     project: "{{ gissues_project }}"
     title: "{{ issue.title }}"
     state: "{{ issue.state }}"
-    state_filter: "{{ item }}"
+    state_filter: all
     validate_certs: "{{ gissues_validate_certs }}"
-  loop:
-    - opened
-    - closed
+  # loop:
+  #   - opened
+  #   - closed
   when: not gissue_exists
