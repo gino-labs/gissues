@@ -1,5 +1,5 @@
 ---
-- name: "Manage Gitlab Issue | {{ issue.title }}"
+- name: "Update Gitlab Issue | {{ issue.title }}"
   community.general.gitlab_issue:
     api_job_token: "{{ gissues_api_job_token | default(omit) }}"
     api_oauth_token: "{{ gissues_api_oauth_token | default(omit) }}"
@@ -7,7 +7,7 @@
     api_password: "{{ gissues_api_password | default(omit) }}"
     api_token: "{{ gissues_api_token | default(omit) }}"
     api_url: "{{ gissues_api_url }}"
-    project: "{{ gissues_project }}"
+    project: "{{ gissues_project_path }}"
     title: "{{ issue.title }}"
     description: >-
       {{
