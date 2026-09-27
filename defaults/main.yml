@@ -1,26 +1,5 @@
 ---
 # defaults file for gissues
 
-gissues_api_token: ''
-gissues_api_url: ''
-gissues_project: ''
-gissues_project_issues:
-  - title: ''
-    state: present
-    state_filter: opened
-    description: ''
-    labels: []
-    assignee_ids: []
-    milestone_search: ''
-    milestone_group_id: ''
-    epic_id: 0
-    closed: false
-    use_template: false
-    task_owner: ''
-    report_to: ''
-    task_brief: ''
-    delivery_specifics: ''
-    reporting_details: ''
-    background_details: ''
-gissues_description_template: 'gissues_description.md.j2'
 gissues_validate_certs: true
+
