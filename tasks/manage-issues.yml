@@ -1,5 +1,5 @@
 ---
-- name: Manage Gitlab Issue
+- name: "Manage Gitlab Issue | {{ issue.title }}"
   community.general.gitlab_issue:
     api_job_token: "{{ gissues_api_job_token | default(omit) }}"
     api_oauth_token: "{{ gissues_api_oauth_token | default(omit) }}"
@@ -25,13 +25,13 @@
     ca_path: "{{ gissues_ca_path | default(omit) }}"
   register: gissues_issue_result
 
-- name: Set Gitlab Issue Facts
+- name: "Set Gitlab Issue Facts | {{ issue.title }}"
   ansible.builtin.set_fact:
-    gissues_issue_state: "{{ gissues_issue_result.issue.state }}"
+    gissues_issue_current_state: "{{ gissues_issue_result.issue.state }}"
     gissues_issue_url: "{{ gissues_api_url }}/api/v4/projects/{{ gissues_issue_result.issue.project_id }}/issues/{{ gissues_issue_result.issue.iid }}"
   when: issue.state | default('present') != 'absent'
 
-- name: Set Gitlab Issue Epic/Parent
+- name: "Set Gitlab Issue Epic/Parent | {{ issue.title }}"
   ansible.builtin.uri:
     url: "{{ gissues_issue_url }}"
     method: PUT
@@ -46,7 +46,7 @@
     - issue.epic_id is defined
     - issue.state | default('present') != 'absent'
 
-- name: Close Gitlab Issue
+- name: "Close Gitlab Issue | {{ issue.title }}"
   ansible.builtin.uri:
     url: "{{ gissues_issue_url }}"
     method: PUT
@@ -59,10 +59,10 @@
     validate_certs: "{{ gissues_validate_certs }}"
   when:
     - issue.closed | default(false)
-    - gissues_issue_state == 'opened' 
+    - gissues_issue_current_state == 'opened' 
     - issue.state | default('present') != 'absent'
 
-- name: Reopen Gitlab Issue
+- name: "Reopen Gitlab Issue | {{ issue.title }}"
   ansible.builtin.uri:
     url: "{{ gissues_issue_url }}"
     method: PUT
@@ -75,6 +75,6 @@
     validate_certs: "{{ gissues_validate_certs }}"
   when:
     - not issue.closed | default(false)
-    - gissues_issue_state == 'closed' 
+    - gissues_issue_current_state == 'closed' 
     - issue.state | default('present') != 'absent'
 

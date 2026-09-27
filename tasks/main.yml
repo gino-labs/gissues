@@ -1,25 +1,11 @@
 ---
 # tasks file for gissues
 
-- name: Pre-Flight Checks
-  block:
-    - name: Verify Variables
-      ansible.builtin.debug:
-        msg: "Making API calls to {{ gissues_api_url }} from {{ inventory_hostname }}"
-      failed_when: gissues_api_token == ''
-  rescue:
-    - name: Debug Messsage
-      ansible.builtin.debug:
-        msg:
-          - "API token variable was empty."
-          - "Probably forgot --extra-vars, -e"
-          - "Usage: ansible-playbook manage-issues.yml -e '@vars/myproject.yml'"
-      failed_when: true
-
-- name: Manage Gitlab Issues
+- name: "Manage Gitlab Issues for {{ gissues_project_path }}"
   ansible.builtin.include_tasks:
-    file: update_issues.yml
-  loop: "{{ gissues_project_issues }}"
+    file: manage-issues.yml
+  loop: "{{ gissues_issue_list }}"
   loop_control:
     loop_var: issue
     label: "{{ issue.title }}"
+
