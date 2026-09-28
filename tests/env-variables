@@ -1,0 +1,6 @@
+# Warning: Keep your API token safe and copy this file elsewhere
+
+export GITLAB_URL=
+export GITLAB_TOKEN=
+export GITLAB_PROJECT=
+

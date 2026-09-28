@@ -10,11 +10,13 @@
     project: "{{ gissues_project_path }}"
     title: "{{ issue.title }}"
     description: >-
-      {{
-        lookup('template', issue.template).strip() if issue.template | default('')
-        else issue.description | default(omit)
-      }}
-    description_path: "{{ issue.description_path | default(omit) }}"
+      {%- if issue.template | default('') %}
+      {{ lookup('template', issue.template).strip() }}
+      {%- elif issue.description_path | default('') %}
+      {{ lookup('file', issue.description_path).strip() }}
+      {%- else %}
+      {{ issue.description | default(omit) }}
+      {%- endif %}
     state_filter: "{{ issue.state_filter | default('all') }}"
     state: "{{ issue.state | default('present') }}"
     labels: "{{ issue.labels | default(omit) }}"
@@ -26,56 +28,68 @@
     ca_path: "{{ gissues_ca_path | default(omit) }}"
   register: gissues_issue_result
 
+- name: Debug Issue Result
+  ansible.builtin.debug:
+    var: gissues_issue_result.issue
+
 - name: "Set Gitlab Issue Facts | {{ issue.title }}"
   ansible.builtin.set_fact:
     gissues_issue_current_state: "{{ gissues_issue_result.issue.state }}"
     gissues_issue_url: "{{ gissues_api_url }}/api/v4/projects/{{ gissues_issue_result.issue.project_id }}/issues/{{ gissues_issue_result.issue.iid }}"
   when: issue.state | default('present') != 'absent'
 
-- name: "Set Gitlab Issue Epic/Parent | {{ issue.title }}"
+- name: "Set Gitlab Issue Epic/Parent | {{ issue.title }}?epic_id={{ issue.epic_id | int }}"
   ansible.builtin.uri:
     url: "{{ gissues_issue_url }}"
     method: PUT
     headers:
       PRIVATE-TOKEN: "{{ gissues_api_token }}"
-    body_format: json
-    body:
-      epic_id: "{{ issue.epic_id | int }}"
     status_code: 200
     validate_certs: "{{ gissues_validate_certs }}"
   when:
     - issue.epic_id is defined
     - issue.state | default('present') != 'absent'
+  register: gissues_epic_result
+
+#- name: "Debug Issue Epic Result"
+#  ansible.builtin.debug:
+#    var: gissues_epic_result
 
 - name: "Close Gitlab Issue | {{ issue.title }}"
   ansible.builtin.uri:
-    url: "{{ gissues_issue_url }}"
+    url: "{{ gissues_issue_url }}?state_event=close"
     method: PUT
     headers:
       PRIVATE-TOKEN: "{{ gissues_api_token }}"
-    body_format: json
-    body:
-      state_event: close
     status_code: 200
     validate_certs: "{{ gissues_validate_certs }}"
   when:
     - issue.closed | default(false)
-    - gissues_issue_current_state == 'opened' 
+    - gissues_issue_current_state | default('')  == 'opened' 
     - issue.state | default('present') != 'absent'
+  changed_when: true
+  register: gissues_issue_closed_result
+
+- name: "Debug Issue Closed Result | {{ issue.title }}"
+  ansible.builtin.debug:
+    var: gissues_issue_closed_result
 
 - name: "Reopen Gitlab Issue | {{ issue.title }}"
   ansible.builtin.uri:
-    url: "{{ gissues_issue_url }}"
+    url: "{{ gissues_issue_url }}?state_event=reopen"
     method: PUT
     headers:
       PRIVATE-TOKEN: "{{ gissues_api_token }}"
-    body_format: json
-    body:
-      state_event: reopen
     status_code: 200
     validate_certs: "{{ gissues_validate_certs }}"
   when:
     - not issue.closed | default(false)
-    - gissues_issue_current_state == 'closed' 
+    - gissues_issue_current_state | default('') == 'closed' 
     - issue.state | default('present') != 'absent'
+  changed_when: true
+  register: gissues_issue_reopened_result
+
+#- name: "Debug Issue Reopened Result | {{ issue.title }}"
+#  ansible.builtin.debug:
+#    var: gissues_issue_reopened_result
 

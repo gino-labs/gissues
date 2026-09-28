@@ -15,7 +15,7 @@
       - title: Gitlab Test Issue 1
         state: present
         closed: false
-        state_filter: opened
+        state_filter: all
         labels:
           - Gitlab
           - Development
@@ -24,11 +24,11 @@
       - title: Gitlab Test Issue 2
         state: present
         closed: false
-        state_filter: closed
+        state_filter: all
         labels:
           - Gitlab
           - Production
-        description_path: files/issue-test-description.md          
+        description_path: files/test-description.md 
 
       - title: Gitlab Test Issue 3
         state: present
@@ -62,6 +62,3 @@
             - [ ] Test Reopen
             - [ ] Test Delete
             
-
-            
-

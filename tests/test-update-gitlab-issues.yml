@@ -15,7 +15,7 @@
       - title: Gitlab Test Issue 1
         state: present
         closed: false
-        state_filter: opened
+        state_filter: all
         labels:
           - Gitlab
           - Development
@@ -24,7 +24,7 @@
       - title: Gitlab Test Issue 2
         state: present
         closed: false
-        state_filter: closed
+        state_filter: all
         labels:
           - Gitlab
           - Production
