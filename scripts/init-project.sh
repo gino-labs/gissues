@@ -186,3 +186,6 @@ api_version = 4
 EOF
 fi
 
+if [[ ! -d "$PROJECT_DIR/tests" ]]; then
+  cp -a "$ROLE_DIR/tests" "$PROJECT_DIR/tests"
+fi

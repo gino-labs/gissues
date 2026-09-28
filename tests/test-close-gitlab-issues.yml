@@ -19,6 +19,7 @@
         labels:
           - Gitlab
           - Development
+          - Done
         description: "# Update Description Issue 1"
 
       - title: Gitlab Test Issue 2
@@ -28,7 +29,7 @@
         labels:
           - Gitlab
           - Production
-          - To Do
+          - Done
         description_path: files/test-description.md          
 
       - title: Gitlab Test Issue 3
@@ -38,7 +39,7 @@
         labels:
           - Gitlab
           - Infrastructure
-          - Doing
+          - Done
         template: issue.md.j2
         template_vars:
           task_owner: Gino
@@ -72,5 +73,5 @@
         labels:
           - Gitlab
           - Maintenance
-          - To Do
+          - Done
 

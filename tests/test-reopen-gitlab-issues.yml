@@ -16,24 +16,61 @@
         state: present
         closed: false
         state_filter: all
+        labels:
+          - Gitlab
+          - Development
+          - Doing
+        description: "# Reopened Issue 1"
 
       - title: Gitlab Test Issue 2
         state: present
         closed: false
         state_filter: all
+        labels:
+          - Gitlab
+          - Production
+          - To Do
+        description_path: files/test-description.md          
 
       - title: Gitlab Test Issue 3
         state: present
         closed: false
         state_filter: all
+        labels:
+          - Gitlab
+          - Infrastructure
+          - Doing
+        template: issue.md.j2
+        template_vars:
+          task_owner: Gino
+          report_to: ''
+          background_details: Updated background details test.
 
       - title: Gitlab Test Issue 4
         state: present
         closed: false
         state_filter: all
+        labels:
+          - Gitlab
+          - Security
+          - To Do
+        template: test-template.md.j2
+        template_vars:
+          heading: 'Hello World'
+          body: | 
+            __Testing Gissues Role:__
+
+            - [x] Test Create
+            - [x] Test Update
+            - [x] Test Close
+            - [x] Test Reopen
+            - [x] Test Delete
             
       - title: Gitlab Test Issue 5
         state: present
         closed: false
         state_filter: all
+        labels:
+          - Gitlab
+          - Maintenance
 
