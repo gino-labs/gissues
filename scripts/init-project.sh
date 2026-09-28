@@ -142,8 +142,16 @@ while true; do
       source "$PROJECT_DIR/venv/bin/activate"
       pip install -U pip
       pip install -r "$ROLE_DIR/requirements/python.txt"
-      ansible-galaxy collection install -p "$PROJECT_DIR/collections" -r "$ROLE_DIR/requirements/ansible.yml" -f
+      #ansible-galaxy collection install -p "$PROJECT_DIR/collections" -r "$ROLE_DIR/requirements/ansible.yml" -f
       deactivate
+
+      COMMUNITY_GENERAL_DIR="$PROJECT_DIR/collections/ansible_collections/community/general"
+
+      if [[ ! -d "$COMMUNITY_GENERAL_DIR" ]]; then
+        mkdir -p "$COMMUNITY_GENERAL_DIR"
+        git clone https://github.com/gino-labs/community.general.git "$COMMUNITY_GENERAL_DIR"
+      fi
+
       exit 0
       ;;
     [Nn])
@@ -151,7 +159,7 @@ while true; do
       echo "  - python3 venv"
       echo "  - ansible"
       echo "  - python-gitlab"
-      echo "  - community.general"
+      echo "  - community.general (Fork)"
       echo "Exiting..."
       echo 
       exit 0
@@ -162,4 +170,19 @@ while true; do
   esac
 done
 
+if [[ ! -f ~/.python-gitlab.cfg ]]; then
+
+cat << EOF > ~/.python-gitlab.cfg
+[global]
+default = gitlab_instance
+ssl_verify = true
+timeout = 5
+
+[gitlab_instance]
+url = https://gitlab.example.com
+private_token = ''
+api_version = 4
+
+EOF
+fi
 

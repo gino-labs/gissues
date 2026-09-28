@@ -10,13 +10,15 @@
     project: "{{ gissues_project_path }}"
     title: "{{ issue.title }}"
     description: >-
-      {%- if issue.template | default('') %}
-      {{ lookup('template', issue.template).strip() }}
-      {%- elif issue.description_path | default('') %}
-      {{ lookup('file', issue.description_path).strip() }}
-      {%- else %}
-      {{ issue.description | default(omit) }}
-      {%- endif %}
+      {{
+        lookup('template', issue.template).strip()
+        if issue.template | default('')
+        else lookup('file', issue.description_path).strip()
+        if issue.description_path | default('')
+        else issue.description.strip()
+        if issue.description is defined
+        else omit
+      }}
     state_filter: "{{ issue.state_filter | default('all') }}"
     state: "{{ issue.state | default('present') }}"
     labels: "{{ issue.labels | default(omit) }}"
@@ -28,9 +30,9 @@
     ca_path: "{{ gissues_ca_path | default(omit) }}"
   register: gissues_issue_result
 
-- name: Debug Issue Result
-  ansible.builtin.debug:
-    var: gissues_issue_result.issue
+#- name: Debug Issue Result
+#  ansible.builtin.debug:
+#    var: gissues_issue_result
 
 - name: "Set Gitlab Issue Facts | {{ issue.title }}"
   ansible.builtin.set_fact:
@@ -38,9 +40,9 @@
     gissues_issue_url: "{{ gissues_api_url }}/api/v4/projects/{{ gissues_issue_result.issue.project_id }}/issues/{{ gissues_issue_result.issue.iid }}"
   when: issue.state | default('present') != 'absent'
 
-- name: "Set Gitlab Issue Epic/Parent | {{ issue.title }}?epic_id={{ issue.epic_id | int }}"
+- name: "Set Gitlab Issue Epic/Parent | {{ issue.title }}"
   ansible.builtin.uri:
-    url: "{{ gissues_issue_url }}"
+    url: "{{ gissues_issue_url }}?epic_id={{ issue.epic_id | int }}"
     method: PUT
     headers:
       PRIVATE-TOKEN: "{{ gissues_api_token }}"
@@ -70,9 +72,9 @@
   changed_when: true
   register: gissues_issue_closed_result
 
-- name: "Debug Issue Closed Result | {{ issue.title }}"
-  ansible.builtin.debug:
-    var: gissues_issue_closed_result
+#- name: "Debug Issue Closed Result | {{ issue.title }}"
+#  ansible.builtin.debug:
+#    var: gissues_issue_closed_result
 
 - name: "Reopen Gitlab Issue | {{ issue.title }}"
   ansible.builtin.uri:

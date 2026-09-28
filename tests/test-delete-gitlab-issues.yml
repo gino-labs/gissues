@@ -28,3 +28,7 @@
         state: absent
         state_filter: all
             
+      - title: Gitlab Test Issue 5
+        state: absent
+        state_filter: all
+

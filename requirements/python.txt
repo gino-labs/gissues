@@ -2,4 +2,5 @@ ansible
 molecule
 ansible-lint
 python-gitlab
+python_gitlab[autocompletion]
 

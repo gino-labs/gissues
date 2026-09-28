@@ -65,3 +65,12 @@
             - [x] Test Reopen
             - [x] Test Delete
             
+      - title: Gitlab Test Issue 5
+        state: present
+        closed: false
+        state_filter: all
+        labels:
+          - Gitlab
+          - Maintenance
+          - To Do
+
