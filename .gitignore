@@ -11,3 +11,5 @@ __pycache__/
 # Ansible retry files
 *.retry
 
+# Vim
+*.swp
