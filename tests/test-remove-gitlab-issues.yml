@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  become: false
+  gather_facts: false
+  connection: local
+  vars:
+    gissues_api_token: "{{ lookup('env', 'GITLAB_TOKEN') }}"
+    gissues_api_url: "{{ lookup('env', 'GITLAB_URL') }}"
+    gissues_project_path: "{{ lookup('env', 'GITLAB_PROJECT') }}"
+    gissues_validate_certs: false
+    gissues_issue_list: 
+      - title: Gitlab Test Issue 1
+        state: absent
+        state_filter: all
+      - title: Gitlab Test Issue 2
+        state: absent
+        state_filter: all
+  roles:
+    - gissues

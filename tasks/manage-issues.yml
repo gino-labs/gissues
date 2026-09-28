@@ -14,6 +14,7 @@
         lookup('template', issue.template).strip() if issue.template | default('')
         else issue.description | default(omit)
       }}
+    description_path: "{{ issue.description_path | default(omit) }}"
     state_filter: "{{ issue.state_filter | default('all') }}"
     state: "{{ issue.state | default('present') }}"
     labels: "{{ issue.labels | default(omit) }}"
