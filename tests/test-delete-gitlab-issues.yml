@@ -3,17 +3,28 @@
   become: false
   gather_facts: false
   connection: local
+  roles:
+    - gissues
   vars:
     gissues_api_token: "{{ lookup('env', 'GITLAB_TOKEN') }}"
     gissues_api_url: "{{ lookup('env', 'GITLAB_URL') }}"
     gissues_project_path: "{{ lookup('env', 'GITLAB_PROJECT') }}"
     gissues_validate_certs: false
     gissues_issue_list: 
+
       - title: Gitlab Test Issue 1
         state: absent
-        state_filter: all
+        state_filter: opened
+
       - title: Gitlab Test Issue 2
         state: absent
+        state_filter: closed
+
+      - title: Gitlab Test Issue 3
+        state: absent
         state_filter: all
-  roles:
-    - gissues
+
+      - title: Gitlab Test Issue 4
+        state: absent
+        state_filter: all
+            

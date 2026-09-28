@@ -19,6 +19,7 @@
         labels:
           - Gitlab
           - Development
+        description: "# Gitlab Test Issue 1"
 
       - title: Gitlab Test Issue 2
         state: present
@@ -27,6 +28,7 @@
         labels:
           - Gitlab
           - Production
+        description_path: files/issue-test-description.md          
 
       - title: Gitlab Test Issue 3
         state: present
@@ -35,6 +37,11 @@
         labels:
           - Gitlab
           - Infrastructure
+        template: issue.md.j2
+        template_vars:
+          task_owner: Gino
+          report_to: Gino
+          background_details: Testing Gissues Role
 
       - title: Gitlab Test Issue 4
         state: present
@@ -43,4 +50,18 @@
         labels:
           - Gitlab
           - Security
+        template: test-template.md.j2
+        template_vars:
+          heading: 'Hello World'
+          body: | 
+            __Testing Gissues Role:__
+
+            - [x] Test Create
+            - [ ] Test Update
+            - [ ] Test Close
+            - [ ] Test Reopen
+            - [ ] Test Delete
+            
+
+            
 
