@@ -26,6 +26,8 @@ roles_path = ./roles
 collections_path = ./collections
 interpreter_python = auto_silent
 host_key_checking = false
+display_skipped_hosts = false
+interpreter_python = ./venv/bin/python3
 
 EOF
 fi
@@ -48,71 +50,49 @@ fi
 if [[ ! -f "$PROJECT_DIR/vars/example.yml" ]]; then
   
 cat << EOF > "$PROJECT_DIR/vars/example.yml"
-# Example of variable usage
 # See related documentation for community.general.gitlab_issue ansible module
-# Most Parameters for community.general.gitlab_issue are supported and settable based on scope and namespace prefixing
-# E.g. api_url = gissues_api_url (Scoped to entire play or variable set)
-# Then, title = gissues_issue_list[N].title (Scoped to issue dictionary within a list of dictionaries)
 
-### Example using environment variables to store url and token
+
 # gissues_api_url: "{{ lookup('env', 'GITLAB_URL') }}"
-# gissues_api_token: "{{ lookup('env', 'GITLAB_TOKEN') }}"
+# gissues_api_token: "{{ lookup('env', 'GITLAB_PRIVATE_TOKEN') }}"
 
-### Project path is the group/user/parent_project namespace followed by project name, e.g. company/infrastructure, user/lab, devs/application
 # gissues_project_path: 'namespace/project'
 
-### Set to true for trusted certificates only
-# gissues_validate_certs: false
+# gissues_validate_certs: true
+# gissues_ca_path: ''
 
-### List of issues with various keys
-### Keys not specified are omitted or defaulted to modules default
 # gissues_issue_list:
-#   ### Create issue with a jinja template and template variables to use with it. Vars inside template should be formatted as {{ issue.template_vars.<key> }}
-#   - title: Hello World
+#   - title: ''
 #     state: present
 #     state_filter: all
+#     closed: false
+#     description: ''
+#     description_path: ''
 #     template: issue.md.j2
 #     template_vars:
-#       task_owner: @gino
-#       report_to: N/A
-#     assignee_ids:
-#       - gino
-#       - Linus
-#       - Elliot
-#     labels:
-#       - To Do
-#       - Linux
-#       - Weekly Ops
-#     closed: false
+#       task_owner: ''
+#       report_to: ''
+#       task_brief: ''
+#       delivery_specifics: ''
+#       reporting_details: ''
+#       background_details: ''
+#     assignee_ids: []
+#     labels: []
 #     epic_id: 0
+#     milestone_search: ''
+#     milestone_search_id: ''
 #
-#   ### Create issue with regular description text
-#   - title: Foo World
-#     state: present
-#     description: |
-#       # Tasks
-#       - [x] Task 1
-#       - [x] Task 2
-#       - [ ] Task 3
-#     assignee_ids:
-#       - gino
-#     labels
-#       - Doing
-#       - Linux
-#     epic_id: 0
+# Note: issue title is the only mandatory key in `gissues_issue_list`
 #
-#   ### Close issue  
-#   - title: Bar World
-#     state: present
-#     closed: true
-#     labels:
-#       - Done
-#       - Linux
+# Note: description precedence = templates > description_path > description
 #
-#   ### Delete issue if closed
-#   - title: Goodbye World
-#     state: absent
-#     state_filter: closed
+# Note: `gissues_issue_list.template_vars.*` define keys to be used in selected template in the form of '{{ issue.template_vars.your_key }}'
+#
+# Note: milestone_search and milestone_search_id are required together
+#
+# Note: assignee_ids take usernames minus '@' symbol
+#
+# Note: If any field reports changed, all fields are resubmitted regardless if previously set fields are still defined.
 
 EOF
 fi
@@ -135,6 +115,7 @@ while true; do
   case "$answer" in
     [Yy]) 
       echo "Installing..."
+      sleep 1
       if [[ ! -d "$PROJECT_DIR/venv" ]]; then
         python3 -m venv "$PROJECT_DIR/venv"
       fi
@@ -152,17 +133,15 @@ while true; do
         git clone https://github.com/gino-labs/community.general.git "$COMMUNITY_GENERAL_DIR"
       fi
 
-      exit 0
+      break
       ;;
     [Nn])
-      echo "Skip installing:"
-      echo "  - python3 venv"
+      echo "Skipping install..."
+      echo "Dependencies:"
       echo "  - ansible"
       echo "  - python-gitlab"
-      echo "  - community.general (Fork)"
-      echo "Exiting..."
-      echo 
-      exit 0
+      echo "  - community.general"
+      break
       ;;
     *)
       echo "Please enter y or n."
@@ -172,6 +151,8 @@ done
 
 if [[ ! -f ~/.python-gitlab.cfg ]]; then
 
+echo
+echo "Setting up ~/.python-gitlab.cfg"
 cat << EOF > ~/.python-gitlab.cfg
 [global]
 default = gitlab_instance
@@ -187,5 +168,11 @@ EOF
 fi
 
 if [[ ! -d "$PROJECT_DIR/tests" ]]; then
+  echo
+  echo "Copying tests..."
   cp -a "$ROLE_DIR/tests" "$PROJECT_DIR/tests"
 fi
+
+echo
+echo "Done! See project at $PROJECT_DIR"
+sleep 1
