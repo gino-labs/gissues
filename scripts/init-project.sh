@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -eo pipefail
 
 if [[ -z "$1" ]]; then
   echo "ERROR: No output directory specified."
@@ -82,11 +82,11 @@ cat << EOF > "$PROJECT_DIR/vars/example.yml"
 #     milestone_search: ''
 #     milestone_search_id: ''
 #
-# Note: issue title is the only mandatory key in `gissues_issue_list`
+# Note: issue title is the only mandatory key in gissues_issue_list
 #
 # Note: description precedence = templates > description_path > description
 #
-# Note: `gissues_issue_list.template_vars.*` define keys to be used in selected template in the form of '{{ issue.template_vars.your_key }}'
+# Note: gissues_issue_list.template_vars.X define keys to be used in selected template in the form of '{{ issue.template_vars.your_key }}'
 #
 # Note: milestone_search and milestone_search_id are required together
 #
@@ -111,6 +111,7 @@ ln -s "$ROLE_DIR" "$PROJECT_DIR/roles/gissues"
 
 fi
 
+echo
 while true; do
   read -rp "Would you like to install dependencies? [y/n]: " answer
 
