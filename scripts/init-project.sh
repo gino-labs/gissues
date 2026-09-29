@@ -24,7 +24,6 @@ cat << EOF > "$PROJECT_DIR/ansible.cfg"
 inventory = localhost,
 roles_path = ./roles
 collections_path = ./collections
-interpreter_python = auto_silent
 host_key_checking = false
 display_skipped_hosts = false
 interpreter_python = ./venv/bin/python3
