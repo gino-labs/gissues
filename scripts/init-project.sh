@@ -11,7 +11,7 @@ fi
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ROLE_DIR="$(dirname "$SCRIPT_DIR")"
-PROJECT_DIR="${1%/}/gitlab_issues"
+PROJECT_DIR="${1%/}/gitlab-issues"
 echo "Initializing project to $PROJECT_DIR"
 sleep 1
 
@@ -36,7 +36,7 @@ if [[ ! -f "$PROJECT_DIR/manage-gitlab-issues.yml" ]]; then
 
 cat << EOF > "$PROJECT_DIR/manage-gitlab-issues.yml"
 ---
-- name: Manage Gitlab Issues Playbook
+- name: Manage Gitlab Issues
   hosts: localhost
   connection: local
   gather_facts: false
@@ -103,8 +103,10 @@ cp "$ROLE_DIR/templates/issue.md.j2" "$PROJECT_DIR/templates/issue.md.j2"
 
 fi
 
-if [[ ! -e "$PROJECT_DIR/roles/gissues" ]]; then
+if [[ ! -L "$PROJECT_DIR/roles/gissues" ]]; then
 
+echo
+echo "Symlinking $ROLE_DIR -> $PROJECT_DIR/roles/gissues"
 ln -s "$ROLE_DIR" "$PROJECT_DIR/roles/gissues"
 
 fi
